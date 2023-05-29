@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "LIHKG Helper",
+  "description": "A chrome extension that makes LIHKG.com better.",
+  "version": "1.0",
+  "icons": {
+    "16": "images/icon-16x16.png",
+    "32": "images/icon-32x32.png",
+    "48": "images/icon-48x48.png",
+    "128": "images/icon-128x128.png"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": ["https://lihkg.com/*"]
+    }
+  ],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["images/*"],
+      "matches": ["https://lihkg.com/*"]
+    },
+    {
+      "resources": ["scripts/fetch.js"],
+      "matches": ["https://lihkg.com/*"]
+    }
+  ],
+  "permissions": [
+    "storage",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "https://lihkg.com/*"
+  ]
+}
