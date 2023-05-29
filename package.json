@@ -1,0 +1,19 @@
+{
+  "name": "lihkg-helper",
+  "version": "1.0.0",
+  "description": "A chrome extension that makes LIHKG.com better.",
+  "scripts": {
+    "build": "rm -rf dist && rollup -c && cp -r images manifest.json popup.html dist",
+    "dev": "rollup -c -w"
+  },
+  "keywords": [],
+  "author": "hkbocchi",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.1",
+    "@types/chrome": "^0.0.237",
+    "rollup": "^3.23.0",
+    "tslib": "^2.5.2",
+    "typescript": "^5.0.4"
+  }
+}
