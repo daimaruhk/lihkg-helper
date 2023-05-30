@@ -7,12 +7,21 @@ export type PostData = {
 }
 
 // LIHKG api response shape
-export type Response<T> = {
+export type Response = {
   success: number;
   server_time: number;
-  response: T;
 }
 
+export type SuccessResponse<T = any> = {
+  response: T
+} & Response;
+
+export type FailureResponse = {
+  error_code: number;
+  error_message: string;
+} & Response;
+
+// LIHKG API Payload shape
 type PostMetadata = {
   thread_id: string;
   cat_id: number;

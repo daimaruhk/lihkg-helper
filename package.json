@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A chrome extension that makes LIHKG.com better.",
   "scripts": {
-    "build": "rm -rf dist && rollup -c && cp -r images manifest.json popup.html dist",
+    "build": "rm -rf dist && rollup -c && cp -r images styles manifest.json popup.html dist",
     "dev": "rollup -c -w"
   },
   "keywords": [],

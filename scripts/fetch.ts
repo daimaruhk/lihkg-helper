@@ -23,7 +23,7 @@ class FakeXMLHttpRequest extends OriginalXMLHttpRequest {
             response = JSON.stringify(BackupHelper.get(threadId, Number(page)));
           }
         }
-        // XHR properties are read-only, make it mutable.
+        // XHR properties are read-only, make them mutable.
         Object.defineProperty(this, 'responseText', { writable: true });
         Object.defineProperty(this, 'response', { writable: true });
         this.response = this.responseText = response;
