@@ -9,8 +9,8 @@ A chrome extension that enables user back up LIHKG post in one click.
 
 ## Installation
 1. Download the extension:
-	a. Clone this repository, run `npm run install & npm run build`. It creates a production build of the extension in `./dist` direcotry.
-	b. Or, download the pre-build extension [here](https://).
+	- Clone this repository, run `npm run install & npm run build`. It creates a production build of the extension in `./dist` direcotry.
+	- Or, download the pre-build extension [here](https://).
 2. Go to [chrome://extensions](chrome://extensions).
 3. Toggle on the **Developer mode** at the top-right corner.
 4. Click **Load unpacked** button at the top-left corner, select the directory of the extension.
