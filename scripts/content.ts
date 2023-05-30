@@ -1,4 +1,12 @@
-import { BackupEvent, BackupHelper, injectScript, isDarkMode, isMobileDevice } from './utils';
+import {
+  BackupEvent,
+  BackupHelper,
+  MessageType,
+  Storage,
+  injectScript,
+  isDarkMode,
+  isMobileDevice
+} from './utils';
 
 const navBtnQueryDesktop = '[data-tip="熱門回覆"]';
 const navBtnQueryMobile = 'ul li button .i-hot-reply';
@@ -92,6 +100,13 @@ window.addEventListener(BackupEvent.OnBackupComplete, () => {
   const icon = document.querySelector('.backup-icon')!;
   spinner.classList.add('hidden');
   icon.classList.remove('hidden');
+});
+
+chrome.runtime.onMessage.addListener((req) => {
+  if (req.type === MessageType.RequestHeader) {
+    // Save the request header to session storage
+    Storage.set('request', req.payload, true);
+  }
 });
 
 injectScript('scripts/fetch.js');
