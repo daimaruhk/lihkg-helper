@@ -35,7 +35,7 @@ export class BackupHelper {
     window.dispatchEvent(new CustomEvent(BackupEvent.OnBackupStart));
 
     try {
-      const { request } = await chrome.storage.session.get('request') as { request?: chrome.webRequest.WebRequestHeadersDetails };
+      const request = Storage.get('request', true) as chrome.webRequest.WebRequestHeadersDetails || null;
       if (!request) throw new Error('Request not found.');
 
       const { url, requestHeaders } = request;
@@ -155,12 +155,13 @@ class Logger {
   }
 }
 
-class Storage {
+export class Storage {
   private static readonly namespace = "app:data";
 
-  public static get(key?: string) {
+  public static get(key?: string, session = false) {
+    const storage = session ? window.sessionStorage : window.localStorage;
     try {
-      const data = JSON.parse(window.localStorage.getItem(this.namespace) as string) || {};
+      const data = JSON.parse(storage.getItem(this.namespace) as string) || {};
       if (!key) return data;
       return data[key] || null;
     } catch (err) {
@@ -169,10 +170,11 @@ class Storage {
     }
   }
 
-  public static set(key: string, value: any) {
+  public static set(key: string, value: any, session = false) {
+    const storage = session ? window.sessionStorage : window.localStorage;
     try {
-      const parsed = JSON.parse(window.localStorage.getItem(this.namespace) as string) || {};
-      window.localStorage.setItem(this.namespace, JSON.stringify({
+      const parsed = JSON.parse(storage.getItem(this.namespace) as string) || {};
+      storage.setItem(this.namespace, JSON.stringify({
         ...parsed,
         [key]: value,
       }));
@@ -207,3 +209,7 @@ export class BackupEvent {
   public static readonly OnBackupStart = 'app:backup-start';
   public static readonly OnBackupComplete = 'app:backup-complete';
 };
+
+export enum MessageType {
+  RequestHeader
+}
