@@ -1,12 +1,7 @@
-import {
-  BackupEvent,
-  BackupHelper,
-  MessageType,
-  Storage,
-  injectScript,
-  isDarkMode,
-  isMobileDevice
-} from './utils';
+import { MessagePayload, MessageType } from './type';
+import AppEvent from './utils/AppEvent';
+import { BackupHelper } from './utils/BackupHelper';
+import Storage from './utils/Storage';
 
 const navBtnQueryDesktop = '[data-tip="熱門回覆"]';
 const navBtnQueryMobile = 'ul li button .i-hot-reply';
@@ -24,15 +19,15 @@ const observer = new MutationObserver((mutations) => {
         const element = node as HTMLElement;
 
         if (!!element.querySelector(drawerBtnQuery)) {
-          window.dispatchEvent(new CustomEvent(BackupEvent.CreateDrawerButton));
+          window.dispatchEvent(new CustomEvent(AppEvent.CreateDrawerButton));
         }
 
         if (!isMobile && !!element.querySelector(navBtnQueryDesktop)) {
-          window.dispatchEvent(new CustomEvent(BackupEvent.CreateDesktopNavButton));
+          window.dispatchEvent(new CustomEvent(AppEvent.CreateDesktopNavButton));
         }
 
         if (isMobile && !!element.querySelector(navBtnQueryMobile)) {
-          window.dispatchEvent(new CustomEvent(BackupEvent.CreateMobileNavButton, { detail: { element } }));
+          window.dispatchEvent(new CustomEvent(AppEvent.CreateMobileNavButton, { detail: { element } }));
         }
       }
     })
@@ -42,7 +37,7 @@ const observer = new MutationObserver((mutations) => {
 observer.observe(document.body, { childList: true, subtree: true });
 
 // create a backup button on the nav bar (Desktop)
-window.addEventListener(BackupEvent.CreateDesktopNavButton, () => {
+window.addEventListener(AppEvent.CreateDesktopNavButton, () => {
   const sibling = document.querySelector(navBtnQueryDesktop)!;
   const backupImagePath = `images/backup-${isDarkMode() ? 'light' : 'dark'}.png`;
   const wrapper = document.createElement('div');
@@ -61,7 +56,7 @@ window.addEventListener(BackupEvent.CreateDesktopNavButton, () => {
 });
 
 // create a backup button non the bottom nav menu (Mobile)
-window.addEventListener(BackupEvent.CreateMobileNavButton, (e: any) => {
+window.addEventListener(AppEvent.CreateMobileNavButton, (e: any) => {
   const parent = e.detail.element.querySelector('ul') as HTMLElement;
   const backupImagePath = `images/backup-${isDarkMode() ? 'light' : 'dark'}.png`;
   const wrapper = document.createElement('div');
@@ -83,30 +78,48 @@ window.addEventListener(BackupEvent.CreateMobileNavButton, (e: any) => {
 });
 
 // use "黑洞台" as "備份台"
-window.addEventListener(BackupEvent.CreateDrawerButton, () => {
+window.addEventListener(AppEvent.CreateDrawerButton, () => {
   const link = document.querySelector(drawerBtnQuery)!;
   link.textContent = '備份台';
 }, { once: true });
 
-window.addEventListener(BackupEvent.OnBackupStart, () => {
+window.addEventListener(AppEvent.OnBackupStart, () => {
   const spinner = document.querySelector('.backup-spinner')!;
   const icon = document.querySelector('.backup-icon')!;
   spinner.classList.remove('hidden');
   icon.classList.add('hidden');
 });
 
-window.addEventListener(BackupEvent.OnBackupComplete, () => {
+window.addEventListener(AppEvent.OnBackupComplete, () => {
   const spinner = document.querySelector('.backup-spinner')!;
   const icon = document.querySelector('.backup-icon')!;
   spinner.classList.add('hidden');
   icon.classList.remove('hidden');
 });
 
-chrome.runtime.onMessage.addListener((req) => {
-  if (req.type === MessageType.RequestHeader) {
+chrome.runtime.onMessage.addListener((message: MessagePayload) => {
+  if (message.type === MessageType.RequestHeader) {
     // Save the request header to session storage
-    Storage.set('request', req.payload, true);
+    Storage.set('request', message.payload, { session: true });
   }
 });
 
-injectScript('scripts/fetch.js');
+injectScript('scripts/client_script.js');
+
+function injectScript(src: string) {
+  const script = document.createElement('script');
+  script.src = chrome.runtime.getURL(src);
+  script.onload = () => script.remove();
+  (document.head || document.documentElement).appendChild(script);
+}
+
+function isDarkMode() {
+  const settings = JSON.parse(window.localStorage.getItem('modesettings') as string);
+  const officeMode = Number(window.localStorage.getItem('officemode')) || 0;
+  const isDarkMode = settings[officeMode]?.darkMode;
+  return !!isDarkMode;
+}
+
+function isMobileDevice() {
+  return window.innerWidth <= 767;
+}
