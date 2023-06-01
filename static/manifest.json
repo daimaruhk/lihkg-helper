@@ -14,13 +14,13 @@
   },
   "content_scripts": [
     {
-      "js": ["scripts/content.js"],
+      "js": ["scripts/content_script.js"],
       "css": ["styles/spinner.css"],
       "matches": ["https://lihkg.com/*"]
     }
   ],
   "background": {
-    "service_worker": "scripts/background.js"
+    "service_worker": "scripts/service_worker.js"
   },
   "web_accessible_resources": [
     {
@@ -28,7 +28,7 @@
       "matches": ["https://lihkg.com/*"]
     },
     {
-      "resources": ["scripts/fetch.js"],
+      "resources": ["scripts/client_script.js"],
       "matches": ["https://lihkg.com/*"]
     }
   ],

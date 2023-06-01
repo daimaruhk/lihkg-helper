@@ -3,17 +3,21 @@
   "version": "1.0.0",
   "description": "A chrome extension that makes LIHKG.com better.",
   "scripts": {
-    "build": "rm -rf dist && rollup -c && cp -r images styles manifest.json popup.html dist",
-    "dev": "rollup -c -w"
+    "build": "NODE_ENV=development webpack ",
+    "dev": "NODE_ENV=production webpack --watch"
   },
   "keywords": [],
   "author": "hkbocchi",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-typescript": "^11.1.1",
     "@types/chrome": "^0.0.237",
-    "rollup": "^3.23.0",
-    "tslib": "^2.5.2",
-    "typescript": "^5.0.4"
+    "copy-webpack-plugin": "^11.0.0",
+    "ts-loader": "^9.4.3",
+    "typescript": "^5.0.4",
+    "webpack": "^5.85.0",
+    "webpack-cli": "^5.1.1"
+  },
+  "dependencies": {
+    "lz-string": "^1.5.0"
   }
 }

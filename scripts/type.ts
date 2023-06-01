@@ -6,6 +6,22 @@ export type PostData = {
   pages: PostComment[][];
 }
 
+export type StorageOptions = {
+  session?: boolean;
+  namespace?: string;
+  compress?: boolean;
+  decompress?: boolean;
+}
+
+export enum MessageType {
+  RequestHeader
+};
+
+export type MessagePayload = {
+  type: MessageType,
+  payload?: any
+};
+
 // LIHKG api response shape
 export type Response = {
   success: number;
