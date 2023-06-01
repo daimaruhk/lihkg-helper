@@ -1,4 +1,7 @@
-import { FailureResponse, KeyValuePair, PostData, PostList, PostPage, Response, SuccessResponse } from './type';
+import { FailureResponse, KeyValuePair, PostData, PostList, PostPage, Response, SuccessResponse } from '../type';
+import AppEvent from './AppEvent';
+import Logger from './Logger';
+import Storage from './Storage';
 
 export class BackupHelper {
   private static readonly regularApiRegex = /^https:\/\/lihkg.com\/api_v2\/thread\/(?<threadId>\d+)\/page\/(?<page>\d+)/;
@@ -6,7 +9,8 @@ export class BackupHelper {
   public static isLoading = false;
 
   public static getAll() {
-    const data = Storage.get() as { [threadId: string]: PostData };
+    const data = Storage.getAll<PostData>({ namespace: 'post', decompress: true });
+    console.info('備份台:', data);
     return this.formatResponse<PostList>({
       category: {
         cat_id: '32', // cat_id=32 is for "黑洞台"
@@ -14,12 +18,13 @@ export class BackupHelper {
         postable: false,
       },
       is_pagination: false,
-      items: Object.values(data).map((postData) => postData.metadata),
+      items: data.map((postData) => postData.metadata),
     });
   }
 
   public static get(threadId: string, page: number) {
-    const data = Storage.get(threadId) as PostData | undefined;
+    const data = Storage.get<PostData>(threadId, { namespace: 'post', decompress: true });
+    console.info(`Thread ${threadId}, page ${page}:`, data);
     if (!data) return this.getErrorResponse();
     return this.formatResponse<PostPage>({
       ...data.metadata,
@@ -32,10 +37,10 @@ export class BackupHelper {
   public static async backup() {
     if (this.isLoading) return;
     this.isLoading = true;
-    window.dispatchEvent(new CustomEvent(BackupEvent.OnBackupStart));
+    window.dispatchEvent(new CustomEvent(AppEvent.OnBackupStart));
 
     try {
-      const request = Storage.get('request', true) as chrome.webRequest.WebRequestHeadersDetails || null;
+      const request = Storage.get<chrome.webRequest.WebRequestHeadersDetails>('request', { session: true });
       if (!request) throw new Error('Request not found.');
 
       const { url, requestHeaders } = request;
@@ -50,7 +55,7 @@ export class BackupHelper {
         item_data,
         ...metadata
       } = (resp as SuccessResponse).response!;
-      const existingPost = (Storage.get(threadId) || {}) as PostData;
+      const existingPost = (Storage.get(threadId, { namespace: 'post', decompress: true }) || {}) as PostData;
       this.mutateThreadId(metadata);
       existingPost.metadata = metadata; // update the latest post metadata
       existingPost.pages = existingPost.pages || []; // assign default empty array if not exist.
@@ -58,6 +63,7 @@ export class BackupHelper {
       const totalPage = metadata.total_page;
       const currentPage = existingPost.pages.length || 1;
       for (let i = currentPage; i <= totalPage; i++) {
+        console.info(`Fetching /api_v2/thread/${threadId}/page/${i}.`);
         const resp = await this.delay(() => this.fetch(threadId, i, requestHeaders!), 500);
         if (resp.success !== 1) {
           Logger.error(`Unable to fetch /api_v2/thread/${threadId}/page/${i}, backup terminated.`);
@@ -67,12 +73,12 @@ export class BackupHelper {
         this.mutateThreadId(itemData);
         existingPost.pages[i - 1] = itemData; // page number is 1-based index, convert to 0-based.
       }
-      Storage.set(threadId, existingPost);
+      Storage.set(threadId, existingPost, { namespace: 'post', compress: true });
     } catch (err) {
       Logger.error(err.message);
     } finally {
       this.isLoading = false;
-      window.dispatchEvent(new CustomEvent(BackupEvent.OnBackupComplete));
+      window.dispatchEvent(new CustomEvent(AppEvent.OnBackupComplete));
     }
   }
 
@@ -145,71 +151,4 @@ export class BackupHelper {
       }, millisecond);
     });
   }
-}
-
-class Logger {
-  private static readonly namespace = "LIHKG Backup Helper";
-
-  public static error(msg: string) {
-    console.error(`${this.namespace} - ${msg}`)
-  }
-}
-
-export class Storage {
-  private static readonly namespace = "app:data";
-
-  public static get(key?: string, session = false) {
-    const storage = session ? window.sessionStorage : window.localStorage;
-    try {
-      const data = JSON.parse(storage.getItem(this.namespace) as string) || {};
-      if (!key) return data;
-      return data[key] || null;
-    } catch (err) {
-      Logger.error('Error when parsing localStorage data.');
-      return null;
-    }
-  }
-
-  public static set(key: string, value: any, session = false) {
-    const storage = session ? window.sessionStorage : window.localStorage;
-    try {
-      const parsed = JSON.parse(storage.getItem(this.namespace) as string) || {};
-      storage.setItem(this.namespace, JSON.stringify({
-        ...parsed,
-        [key]: value,
-      }));
-    } catch (error) {
-      Logger.error('Error when setting localStorage data.');
-    }
-  }
-}
-
-export function injectScript(src: string) {
-  const script = document.createElement('script');
-  script.src = chrome.runtime.getURL(src);
-  script.onload = () => script.remove();
-  (document.head || document.documentElement).appendChild(script);
-}
-
-export function isDarkMode() {
-  const settings = JSON.parse(window.localStorage.getItem('modesettings') as string);
-  const officeMode = Number(window.localStorage.getItem('officemode')) || 0;
-  const isDarkMode = settings[officeMode]?.darkMode;
-  return !!isDarkMode;
-}
-
-export function isMobileDevice() {
-  return window.innerWidth <= 767;
-}
-
-export class BackupEvent {
-  public static readonly CreateDesktopNavButton = 'app:create-desktop-nav-btn';
-  public static readonly CreateMobileNavButton = 'app:create-mobile-nav-btn';
-  public static readonly CreateDrawerButton = 'app:create-drawer-btn';
-  public static readonly OnBackupStart = 'app:backup-start';
-  public static readonly OnBackupComplete = 'app:backup-complete';
-};
-
-export enum MessageType {
-  RequestHeader
 }
