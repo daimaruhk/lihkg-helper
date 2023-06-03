@@ -19,9 +19,6 @@
       "matches": ["https://lihkg.com/*"]
     }
   ],
-  "background": {
-    "service_worker": "scripts/service_worker.js"
-  },
   "web_accessible_resources": [
     {
       "resources": ["images/*"],
@@ -31,9 +28,6 @@
       "resources": ["scripts/client_script.js"],
       "matches": ["https://lihkg.com/*"]
     }
-  ],
-  "permissions": [
-    "webRequest"
   ],
   "host_permissions": [
     "https://lihkg.com/*"

@@ -1,64 +1,85 @@
-import { StorageOptions } from '../type';
-import Codec from './Codec';
-import Logger from './Logger';
+import { Codec, Logger } from '.';
 
-export default class Storage {
+type StorageOptions = {
+  session: boolean;
+  namespace: string;
+  compress: boolean;
+  decompress: boolean;
+}
+
+export class Storage {
   private static readonly prefix = "LIHKGHelper";
 
-  public static get<T = any>(key: string, options: StorageOptions = {}) {
-    const storage = this.getStorage(options);
+  public static get<T = any>(key: string, options?: Partial<StorageOptions>) {
+    const _options = this.parseOptions(options);
+    const storage = this.getStorage(_options);
     try {
-      let stringified = storage.getItem(this.getKey(key, options)) as string | null;
-      if (options.decompress && stringified) {
+      let stringified = storage.getItem(this.getKey(key, _options)) as string | null;
+      if (_options.decompress && stringified) {
         stringified = Codec.decode(stringified);
       }
       return JSON.parse(stringified) as T | null;
     } catch (err) {
-      Logger.error(`Error when parsing localStorage data: namespace=${options.namespace}, key=${key}, decompress=${options.decompress}.`);
+      Logger.error('Error when getting storage data:');
+      Logger.error(_options);
       Logger.error(err);
       return null;
     }
-  }
+  };
 
-  public static getAll<T = any>(options: StorageOptions = {}) {
-    const storage = this.getStorage(options);
+  public static getAll<T = any>(options?: Partial<StorageOptions>) {
+    const _options = this.parseOptions(options);
+    const storage = this.getStorage(_options);
     try {
       return Object
         .entries(storage)
-        .filter(([key]) => key.startsWith(this.getKey("", options)))
-        .map(([_, value]) => JSON.parse(options.decompress ? Codec.decode(value) : value)) as T[];
+        .filter(([key]) => key.startsWith(this.getKey("", _options)))
+        .map(([_, value]) => JSON.parse(_options.decompress ? Codec.decode(value) : value)) as T[];
     } catch (err) {
-      Logger.error(`Error when parsing localStorage data: namespace=${options.namespace}, decompress=${options.decompress}.`);
+      Logger.error('Error when getting all storage data:');
+      Logger.error(_options);
       Logger.error(err);
       return [];
     }
-  }
+  };
 
-  public static set(key: string, value: any, options: StorageOptions = {}) {
-    const storage = this.getStorage(options);
+  public static set(key: string, value: any, options?: Partial<StorageOptions>) {
+    const _options = this.parseOptions(options);
+    const storage = this.getStorage(_options);
     try {
       let stringified = JSON.stringify(value);
-      if (options.compress) {
+      if (_options.compress) {
         stringified = Codec.encode(stringified);
       }
-      storage.setItem(this.getKey(key, options), stringified);
+      storage.setItem(this.getKey(key, _options), stringified);
     } catch (err) {
-      Logger.error(`Error when setting localStorage data: key=${key}, namespace=${options.namespace}, compress=${options.compress}.`);
+      Logger.error('Error when setting storage data:');
+      Logger.error(_options);
       Logger.error(err);
     }
-  }
+  };
 
-  public static delete(key: string, options: StorageOptions = {}) {
-    const storage = this.getStorage(options);
-    storage.removeItem(this.getKey(key, options));
-  }
+  public static delete(key: string, options?: Partial<StorageOptions>) {
+    const _options = this.parseOptions(options);
+    const storage = this.getStorage(_options);
+    storage.removeItem(this.getKey(key, _options));
+  };
 
   private static getKey(key: string, options: StorageOptions) {
-    if (options.namespace) return `${this.prefix}:${options.namespace}:${key}`;
+    if (options.namespace !== "") return `${this.prefix}:${options.namespace}:${key}`;
     return `${this.prefix}:${key}`;
-  }
+  };
 
   private static getStorage(options: StorageOptions) {
     return options.session ? window.sessionStorage : window.localStorage;
-  }
+  };
+
+  private static parseOptions(options: Partial<StorageOptions> = {}): StorageOptions {
+    return {
+      session: options.session ?? false,
+      namespace: options.namespace ?? "",
+      compress: options.compress ?? false,
+      decompress: options.decompress ?? false
+    };
+  };
 }

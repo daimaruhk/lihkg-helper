@@ -4,9 +4,8 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
   mode: 'production',
   entry: {
-    content_script: './scripts/content_script.ts',
-    service_worker: './scripts/service_worker.ts',
-    client_script: ['./scripts/client/request.ts']
+    content_script: './scripts/content_script/index.ts',
+    client_script: ['./scripts/client_script/request.ts']
   },
   output: {
     filename: '[name].js',
