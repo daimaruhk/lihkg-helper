@@ -1,17 +1,16 @@
-import { MessagePayload, MessageType } from './type';
+import { MessagePayload, MessageType, ModalOptions } from './type';
 import AppEvent from './utils/AppEvent';
 import { BackupHelper } from './utils/BackupHelper';
 import Storage from './utils/Storage';
 
 const navBtnQueryDesktop = '[data-tip="熱門回覆"]';
-const navBtnQueryMobile = 'ul li button .i-hot-reply';
 const drawerBtnQuery = 'a[href="/category/32"]'; // "黑洞台" button
 
 // since LIHKG.com is client-side rendering,
 // use MutationObserver to observe the DOM rendering,
 // append the extension DOM whenever the rendering is done.
 const observer = new MutationObserver((mutations) => {
-  const isMobile = isMobileDevice();
+  const isBackupPost = window.location.pathname.startsWith('/thread/backup:');
   mutations.forEach((mutation) => {
     mutation.addedNodes.forEach((node) => {
       const isElementNode = node.nodeType === 1;
@@ -22,12 +21,12 @@ const observer = new MutationObserver((mutations) => {
           window.dispatchEvent(new CustomEvent(AppEvent.CreateDrawerButton));
         }
 
-        if (!isMobile && !!element.querySelector(navBtnQueryDesktop)) {
-          window.dispatchEvent(new CustomEvent(AppEvent.CreateDesktopNavButton));
+        if (!isBackupPost && !!element.querySelector(navBtnQueryDesktop)) {
+          window.dispatchEvent(new CustomEvent(AppEvent.CreateNavButton));
         }
 
-        if (isMobile && !!element.querySelector(navBtnQueryMobile)) {
-          window.dispatchEvent(new CustomEvent(AppEvent.CreateMobileNavButton, { detail: { element } }));
+        if (isBackupPost && !!element.querySelector(navBtnQueryDesktop)) {
+          window.dispatchEvent(new CustomEvent(AppEvent.CreateDeleteButton));
         }
       }
     })
@@ -36,45 +35,44 @@ const observer = new MutationObserver((mutations) => {
 
 observer.observe(document.body, { childList: true, subtree: true });
 
-// create a backup button on the nav bar (Desktop)
-window.addEventListener(AppEvent.CreateDesktopNavButton, () => {
+// create a backup button on the nav bar.
+window.addEventListener(AppEvent.CreateNavButton, () => {
   const sibling = document.querySelector(navBtnQueryDesktop)!;
   const backupImagePath = `images/backup-${isDarkMode() ? 'light' : 'dark'}.png`;
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = `
+  const backupBtn = html`
     <span data-tip="備份" title="備份" style="width:42px;">
-      <span style="display:grid;place-items:center;">
-        <image src=${chrome.runtime.getURL(backupImagePath)} style="width:20px;height:20px" class="backup-icon"></image>
-        <span class="hidden backup-spinner backup-spinner-sm backup-spinner-${isDarkMode() ? 'light' : 'dark'}"></span>
+      <span class="icon-wrapper">
+        <image src=${chrome.runtime.getURL(backupImagePath)} class="backup-icon"></image>
+        <span class="hidden backup-spinner backup-spinner-${isDarkMode() ? 'light' : 'dark'}"></span>
       </span>
     </span>
   `;
-  const backupBtn = wrapper.firstElementChild!;
   backupBtn.addEventListener('click', () => BackupHelper.backup());
   sibling.parentElement!.insertBefore(backupBtn, sibling);
-  wrapper.remove();
 });
 
-// create a backup button non the bottom nav menu (Mobile)
-window.addEventListener(AppEvent.CreateMobileNavButton, (e: any) => {
-  const parent = e.detail.element.querySelector('ul') as HTMLElement;
-  const backupImagePath = `images/backup-${isDarkMode() ? 'light' : 'dark'}.png`;
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = `
-    <li>
-      <button>
-        <span style="display:grid;place-items:center;margin-right:1.7rem;">
-          <image src=${chrome.runtime.getURL(backupImagePath)} style="width:24px;height:24px;" class="backup-icon"></image>
-          <span class="hidden backup-spinner backup-spinner-md backup-spinner-${isDarkMode() ? 'light' : 'dark'}"></span>
-        </span>
-        備份
-      </button>
-    </li>
+// create a delete button on the nav bar.
+window.addEventListener(AppEvent.CreateDeleteButton, () => {
+  const sibling = document.querySelector(navBtnQueryDesktop)!;
+  const deleteImagePath = `images/delete-${isDarkMode() ? 'light' : 'dark'}.png`;
+  const deleteBtn = html`
+    <span data-tip="刪除備份" title="刪除備份" style="width:42px;">
+      <span class="icon-wrapper">
+        <image src=${chrome.runtime.getURL(deleteImagePath)} class="delete-icon"></image>
+      </span>
+    </span>
   `;
-  const backupBtn = wrapper.querySelector('button')!;
-  backupBtn.addEventListener('click', () => BackupHelper.backup());
-  parent.appendChild(wrapper.firstElementChild!);
-  wrapper.remove();
+  deleteBtn.addEventListener('click', () => {
+    const { threadId } = BackupHelper.parseURL(window.location.pathname);
+    const postTitle = (document.title || "").split('|')[0].trim();
+    const options: ModalOptions = {
+      title: "刪除備份",
+      message: `確認要刪除「${postTitle}」？"`,
+      action: () => BackupHelper.delete(threadId)
+    };
+    window.dispatchEvent(new CustomEvent(AppEvent.OnModalOpen, { detail: options }));
+  });
+  sibling.parentElement!.insertBefore(deleteBtn, sibling);
 });
 
 // use "黑洞台" as "備份台"
@@ -95,6 +93,39 @@ window.addEventListener(AppEvent.OnBackupComplete, () => {
   const icon = document.querySelector('.backup-icon')!;
   spinner.classList.add('hidden');
   icon.classList.remove('hidden');
+});
+
+window.addEventListener(AppEvent.OnModalOpen, (e: CustomEvent<ModalOptions>) => {
+  const modal = html<HTMLDialogElement>`
+    <dialog id="lihkg-helper-modal">
+      <div class="modal-header">
+        <div class="modal-title">${e.detail.title}</div>
+        <button class="modal-btn-hover">
+          <i class="i-close"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-content">${e.detail.message}</div>
+        <div class="modal-btns">
+          <button class="modal-btn modal-btn-hover modal-confirm-btn">確認</button>
+          <button class="modal-btn modal-btn-hover modal-cancel-btn">取消</button>
+        </div>
+      </div>
+    </dialog>
+  `;
+  const onClose = () => window.dispatchEvent(new CustomEvent(AppEvent.OnModalClose));
+  modal.querySelector('.modal-header button').addEventListener('click', onClose);
+  modal.querySelector('.modal-cancel-btn').addEventListener('click', onClose);
+  modal.querySelector('.modal-confirm-btn').addEventListener('click', e.detail.action);
+  document.body.appendChild(modal);
+  modal.showModal();
+});
+
+window.addEventListener(AppEvent.OnModalClose, () => {
+  const modal = document.querySelector<HTMLDialogElement>('#lihkg-helper-modal');
+  if (!modal) return;
+  modal.close();
+  modal.remove();
 });
 
 chrome.runtime.onMessage.addListener((message: MessagePayload) => {
@@ -120,6 +151,18 @@ function isDarkMode() {
   return !!isDarkMode;
 }
 
-function isMobileDevice() {
-  return window.innerWidth <= 767;
+function html<T extends HTMLElement = HTMLElement>(strings: TemplateStringsArray, ...values: unknown[]) {
+  let plainHtml = strings[0];
+  for (let i = 1; i < strings.length; i++) {
+    const value = values[i - 1];
+    if (typeof value === 'string') {
+      plainHtml += value;
+    } else {
+      plainHtml += String(value);
+    }
+    plainHtml += strings[i];
+  }
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = plainHtml;
+  return wrapper.firstElementChild as T;
 }
