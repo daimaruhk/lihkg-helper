@@ -1,0 +1,120 @@
+.icon-wrapper {
+  display: grid;
+  place-items: center;
+}
+
+.backup-icon,
+.delete-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.backup-spinner {
+  width: 20px;
+  height: 20px;
+  border-width: 2.5px;
+  border-style: solid;
+  border-top: 2.5px solid #fbc308 !important;
+  border-radius: 50%;
+  animation: rotate 1s linear infinite;
+}
+
+.backup-spinner-light {
+  border-color: #fff;
+}
+
+.backup-spinner-dark {
+  border-color: #000;
+}
+
+.backup-spinner.hidden,
+.backup-icon.hidden {
+  display: none;
+}
+
+#lihkg-helper-modal {
+  color: #fff;
+  border: none;
+  width: 90%;
+  max-width: 450px;
+  padding: 0;
+}
+
+#lihkg-helper-modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  font-size: 1rem;
+  background-color: #222;
+  border-bottom: 1px solid #444443;
+  display: flex;
+  align-items: center;
+  padding-left: 1.5rem;
+}
+
+.modal-header button {
+  font-size: 1rem;
+  padding: 1rem;
+  cursor: pointer;
+}
+
+.modal-title {
+  flex: 1;
+}
+
+.modal-body {
+  font-size: 1rem;
+  background-color: #292827;
+  padding: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.modal-content {
+  background-color: #151515;
+  padding: 1.5rem;
+  border: 1px solid #3b3a39;
+}
+
+.modal-btns {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.modal-btn-hover {
+  position: relative;
+}
+
+.modal-btn-hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #fff;
+  opacity: 0;
+  transition: opacity 0.1s linear;
+}
+
+.modal-btn-hover:hover::before {
+  opacity: 0.1;
+}
+
+.modal-btn {
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+.modal-confirm-btn {
+  margin-left: 1rem;
+}
+
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

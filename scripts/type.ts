@@ -15,12 +15,18 @@ export type StorageOptions = {
 
 export enum MessageType {
   RequestHeader
-};
+}
 
 export type MessagePayload = {
   type: MessageType,
   payload?: any
-};
+}
+
+export type ModalOptions = {
+  title: string;
+  message: string;
+  action: () => void;
+}
 
 // LIHKG api response shape
 export type Response = {

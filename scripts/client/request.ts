@@ -1,7 +1,6 @@
-import { BackupHelper } from "./utils/BackupHelper";
+import { BackupHelper } from '../utils/BackupHelper';
 
 const OriginalXMLHttpRequest = window.XMLHttpRequest;
-
 
 // Override the XHR response based on pathname / request url
 class FakeXMLHttpRequest extends OriginalXMLHttpRequest {
@@ -16,7 +15,7 @@ class FakeXMLHttpRequest extends OriginalXMLHttpRequest {
         // override the response for "黑洞台"
         response = JSON.stringify(BackupHelper.getAll());
       } else {
-        const { threadId, page } = BackupHelper.parseRequestUrl(url);
+        const { threadId, page } = BackupHelper.parseURL(url);
         if (threadId && page) {
           // override the response when the thread id prefixed by "backup:",
           // e.g. https://lihkg.com/api_v2/thread/backup:3400920/page/1
