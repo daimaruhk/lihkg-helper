@@ -1,31 +1,7 @@
-export type KeyValuePair = { [key: string]: any };
-
 // internal shape of the post data
 export type PostData = {
   metadata: PostMetadata;
   pages: PostComment[][];
-}
-
-export type StorageOptions = {
-  session?: boolean;
-  namespace?: string;
-  compress?: boolean;
-  decompress?: boolean;
-}
-
-export enum MessageType {
-  RequestHeader
-}
-
-export type MessagePayload = {
-  type: MessageType,
-  payload?: any
-}
-
-export type ModalOptions = {
-  title: string;
-  message: string;
-  action: () => void;
 }
 
 // LIHKG api response shape
@@ -44,6 +20,23 @@ export type FailureResponse = {
 } & Response;
 
 // LIHKG API Payload shape
+export type PostPage = PostMetadata & {
+  allow_create_child_thread: boolean;
+  page: string;
+  item_data: PostComment[]
+  me?: any;
+}
+
+export type PostList = {
+  category: Category;
+  is_pagination: boolean;
+  items: (PostMetadata & {
+    sub_category?: SubCategory;
+    is_highlight_sub_cat?: boolean;
+  })[];
+  me?: any;
+}
+
 type PostMetadata = {
   thread_id: string;
   cat_id: number;
@@ -76,23 +69,6 @@ type PostMetadata = {
   is_bookmarked: boolean;
   is_replied: boolean;
   user: User
-}
-
-export type PostPage = PostMetadata & {
-  allow_create_child_thread: boolean;
-  page: string;
-  item_data: PostComment[]
-  me?: any;
-}
-
-export type PostList = {
-  category: Category;
-  is_pagination: boolean;
-  items: (PostMetadata & {
-    sub_category?: SubCategory;
-    is_highlight_sub_cat?: boolean;
-  })[];
-  me?: any;
 }
 
 type Category = {

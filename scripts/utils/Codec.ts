@@ -1,6 +1,6 @@
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
 
-export default class Codec {
+export class Codec {
   public static encode(input: string) {
     return compressToBase64(input);
   }
