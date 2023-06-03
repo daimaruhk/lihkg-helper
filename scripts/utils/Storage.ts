@@ -48,6 +48,11 @@ export default class Storage {
     }
   }
 
+  public static delete(key: string, options: StorageOptions = {}) {
+    const storage = this.getStorage(options);
+    storage.removeItem(this.getKey(key, options));
+  }
+
   private static getKey(key: string, options: StorageOptions) {
     if (options.namespace) return `${this.prefix}:${options.namespace}:${key}`;
     return `${this.prefix}:${key}`;

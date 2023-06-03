@@ -4,8 +4,8 @@ import Logger from './Logger';
 import Storage from './Storage';
 
 export class BackupHelper {
-  private static readonly regularApiRegex = /^https:\/\/lihkg.com\/api_v2\/thread\/(?<threadId>\d+)\/page\/(?<page>\d+)/;
-  private static readonly backupApiRegex = /^https:\/\/lihkg.com\/api_v2\/thread\/backup:(?<threadId>\d+)\/page\/(?<page>\d+)/;
+  private static readonly regularPostRegex = /\/thread\/(?<threadId>\d+)\/page\/(?<page>\d+)/;
+  private static readonly backupPostRegex = /\/thread\/backup:(?<threadId>\d+)\/page\/(?<page>\d+)/;
   public static isLoading = false;
 
   public static getAll() {
@@ -34,6 +34,12 @@ export class BackupHelper {
     });
   }
 
+  public static delete(threadId: string) {
+    console.info(`Delete thread ${threadId}.`);
+    Storage.delete(threadId, { namespace: 'post' });
+    window.location.replace('https://lihkg.com/category/32'); // reload the page
+  }
+
   public static async backup() {
     if (this.isLoading) return;
     this.isLoading = true;
@@ -44,7 +50,7 @@ export class BackupHelper {
       if (!request) throw new Error('Request not found.');
 
       const { url, requestHeaders } = request;
-      const { threadId } = this.parseRequestUrl(url, false);
+      const { threadId } = this.parseURL(url, false);
       if (!threadId) throw new Error('Unable to parse request url.');
 
       const resp = await this.fetch(threadId, 1, requestHeaders!);
@@ -82,8 +88,8 @@ export class BackupHelper {
     }
   }
 
-  public static parseRequestUrl(url: string, isBackup = true) {
-    const regexp = isBackup ? this.backupApiRegex : this.regularApiRegex;
+  public static parseURL(url: string, isBackup = true) {
+    const regexp = isBackup ? this.backupPostRegex : this.regularPostRegex;
     return url.match(regexp)?.groups || {};
   }
 
