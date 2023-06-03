@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LIHKG Helper",
   "description": "A chrome extension that makes LIHKG.com better.",
-  "version": "1.0",
+  "version": "1.1.0",
   "icons": {
     "16": "images/icon-16x16.png",
     "32": "images/icon-32x32.png",
@@ -15,7 +15,7 @@
   "content_scripts": [
     {
       "js": ["scripts/content_script.js"],
-      "css": ["styles/spinner.css"],
+      "css": ["styles/styles.css"],
       "matches": ["https://lihkg.com/*"]
     }
   ],

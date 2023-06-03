@@ -6,7 +6,7 @@ module.exports = {
   entry: {
     content_script: './scripts/content_script.ts',
     service_worker: './scripts/service_worker.ts',
-    client_script: './scripts/client_script.ts'
+    client_script: ['./scripts/client/request.ts']
   },
   output: {
     filename: '[name].js',

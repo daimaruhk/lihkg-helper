@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "A chrome extension that makes LIHKG.com better.",
   "scripts": {
-    "build": "NODE_ENV=development webpack ",
-    "dev": "NODE_ENV=production webpack --watch"
+    "build": "rm -rf dist && webpack ",
+    "dev": "webpack --watch"
   },
   "keywords": [],
   "author": "hkbocchi",
