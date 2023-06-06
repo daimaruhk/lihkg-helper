@@ -1,27 +1,28 @@
 import { Logger, Storage, getThreadId, getTitle, html, isDarkMode } from '../utils';
-import { Modal } from './Modal';
+import Modal from './Modal';
+import '../../styles/button.css';
 
-export class DeleteButton {
-  private static createButtonEvent = 'app:create-delete-btn';
-  private static targetQuery = '[data-tip="熱門回覆"]';
+class DeleteButton {
+  private createButtonEvent = 'app:create-delete-btn';
+  private targetQuery = '[data-tip="熱門回覆"]';
 
-  public static init() {
+  constructor() {
     window.addEventListener(this.createButtonEvent, () => this.createButton())
   };
 
-  public static create() {
+  public create() {
     window.dispatchEvent(new CustomEvent(this.createButtonEvent));
   };
 
-  private static createButton() {
+  private createButton() {
     const target = document.querySelector(this.targetQuery);
     if (!target) return;
 
     const deleteImagePath = `images/delete-${isDarkMode() ? 'light' : 'dark'}.png`;
     const deleteBtn = html`
       <span data-tip="刪除備份" title="刪除備份" style="width:42px;">
-        <span class="icon-wrapper">
-          <image src=${chrome.runtime.getURL(deleteImagePath)} class="delete-icon"></image>
+        <span class="btn-wrapper">
+          <image src=${chrome.runtime.getURL(deleteImagePath)} class="btn-icon"></image>
         </span>
       </span>
     `;
@@ -41,3 +42,5 @@ export class DeleteButton {
     target.parentElement!.insertBefore(deleteBtn, target);
   };
 }
+
+export default new DeleteButton();

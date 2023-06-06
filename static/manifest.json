@@ -15,7 +15,7 @@
   "content_scripts": [
     {
       "js": ["scripts/content_script.js"],
-      "css": ["styles/styles.css"],
+      "css": ["styles.css"],
       "matches": ["https://lihkg.com/*"]
     }
   ],
