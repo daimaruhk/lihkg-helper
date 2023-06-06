@@ -1,32 +1,33 @@
 import { PostData, Response, SuccessResponse } from '../type';
 import { getThreadId, html, isDarkMode, Logger, Storage } from '../utils';
+import '../../styles/button.css';
 
-export class BackupButton {
-  private static createButtonEvent = 'app:create-backup-btn';
-  private static backupStartEvent = 'app:backup-start';
-  private static backupCompleteEvent = 'app:backup-complete';
-  private static targetQuery = '[data-tip="熱門回覆"]';
-  private static isLoading = false;
+class BackupButton {
+  private createButtonEvent = 'app:create-backup-btn';
+  private backupStartEvent = 'app:backup-start';
+  private backupCompleteEvent = 'app:backup-complete';
+  private targetQuery = '[data-tip="熱門回覆"]';
+  private isLoading = false;
 
-  public static init() {
+  constructor() {
     window.addEventListener(this.createButtonEvent, () => this.createButton());
     window.addEventListener(this.backupStartEvent, () => this.backupStart());
     window.addEventListener(this.backupCompleteEvent, () => this.backupComplete());
   };
 
-  public static create() {
+  public create() {
     window.dispatchEvent(new CustomEvent(this.createButtonEvent));
   };
 
-  private static createButton() {
+  private createButton() {
     const target = document.querySelector(this.targetQuery);
     if (!target) return;
 
     const backupImagePath = `images/backup-${isDarkMode() ? 'light' : 'dark'}.png`;
     const backupBtn = html`
       <span data-tip="備份" title="備份" style="width:42px;">
-        <span class="icon-wrapper">
-          <image src=${chrome.runtime.getURL(backupImagePath)} class="backup-icon"></image>
+        <span class="btn-wrapper">
+          <image src=${chrome.runtime.getURL(backupImagePath)} class="btn-icon"></image>
           <span class="hidden backup-spinner backup-spinner-${isDarkMode() ? 'light' : 'dark'}"></span>
         </span>
       </span>
@@ -35,15 +36,15 @@ export class BackupButton {
       window.dispatchEvent(new CustomEvent(this.backupStartEvent));
     });
     target.parentElement!.insertBefore(backupBtn, target);
-  } ;
+  };
 
-  private static async backupStart() {
+  private async backupStart() {
     const threadId = getThreadId();
     if (this.isLoading || !threadId) return;
     this.isLoading = true;
 
     const spinner = document.querySelector('.backup-spinner')!;
-    const icon = document.querySelector('.backup-icon')!;
+    const icon = document.querySelector('.btn-icon')!;
     spinner.classList.remove('hidden');
     icon.classList.add('hidden');
 
@@ -81,15 +82,15 @@ export class BackupButton {
     }
   };
 
-  private static backupComplete() {
+  private backupComplete() {
     this.isLoading = false;
     const spinner = document.querySelector('.backup-spinner')!;
-    const icon = document.querySelector('.backup-icon')!;
+    const icon = document.querySelector('.btn-icon')!;
     spinner.classList.add('hidden');
     icon.classList.remove('hidden');
   };
 
-  private static async fetch(threadId: string, page: number): Promise<Response> {
+  private async fetch(threadId: string, page: number): Promise<Response> {
     const headers = {
       referer: `https://lihkg.com/thread/${threadId}/page/${page}`,
       'x-li-device': this.getRandomDevice(),
@@ -99,7 +100,7 @@ export class BackupButton {
     return fetch(`https://lihkg.com/api_v2/thread/${threadId}/page/${page}?order=reply_time`, { headers }).then((resp) => resp.json());
   };
 
-  private static delay<T>(cb: () => T, millisecond = 0) {
+  private delay<T>(cb: () => T, millisecond = 0) {
     return new Promise<T>((resolve, reject) => {
       setTimeout(async () => {
         try {
@@ -112,11 +113,11 @@ export class BackupButton {
     });
   };
 
-  private static random(min: number, max: number, toFixed = 0) {
+  private random(min: number, max: number, toFixed = 0) {
     return (Math.random() * (max - min) + min).toFixed(toFixed);
   };
 
-  private static getRandomDevice() {
+  private getRandomDevice() {
     let device = '';
     for (let i = 0; i < 40; i++) {
       device += Math.floor(Math.random() * 16).toString(16);
@@ -126,7 +127,7 @@ export class BackupButton {
 
   // Normal posts and backup posts can be differentiated by thread_id,
   // backup post id is prefixed by "backup:{thread_id}"
-  private static mutateThreadId(obj: Record<string, any> | Record<string, any>[] ) {
+  private mutateThreadId(obj: Record<string, any> | Record<string, any>[] ) {
     const threadIdKey = 'thread_id';
     if (Array.isArray(obj)) {
       obj.forEach((item) => this.mutateThreadId(item));
@@ -141,3 +142,5 @@ export class BackupButton {
     }
   };
 }
+
+export default new BackupButton();

@@ -1,12 +1,6 @@
-import { BackupButton } from './BackupButton';
-import { DeleteButton } from './DeleteButton';
-import { Modal } from './Modal';
-import { NavLink } from './NavLink';
-
-Modal.init();
-BackupButton.init();
-DeleteButton.init();
-NavLink.init();
+import BackupButton from './BackupButton';
+import DeleteButton from './DeleteButton';
+import NavLink from './NavLink';
 
 // since LIHKG.com is client-side rendering,
 // use MutationObserver to observe the DOM rendering,

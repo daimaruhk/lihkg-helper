@@ -1,37 +1,3 @@
-.icon-wrapper {
-  display: grid;
-  place-items: center;
-}
-
-.backup-icon,
-.delete-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.backup-spinner {
-  width: 20px;
-  height: 20px;
-  border-width: 2.5px;
-  border-style: solid;
-  border-top: 2.5px solid #fbc308 !important;
-  border-radius: 50%;
-  animation: rotate 1s linear infinite;
-}
-
-.backup-spinner-light {
-  border-color: #fff;
-}
-
-.backup-spinner-dark {
-  border-color: #000;
-}
-
-.backup-spinner.hidden,
-.backup-icon.hidden {
-  display: none;
-}
-
 #lihkg-helper-modal {
   color: #fff;
   border: none;
@@ -107,14 +73,4 @@
 
 .modal-confirm-btn {
   margin-left: 1rem;
-}
-
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
