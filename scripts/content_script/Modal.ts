@@ -1,4 +1,5 @@
 import { html } from '../utils';
+import '../../styles/modal.css';
 
 type ModalOptions = {
   title: string;
@@ -6,25 +7,25 @@ type ModalOptions = {
   action: () => void;
 }
 
-export class Modal {
-  private static modalOpenEvent = 'app:on-modal-open';
-  private static modalCloseEvent = 'app:on-modal-close';
-  private static modalId = 'lihkg-helper-modal';
+class Modal {
+  private modalOpenEvent = 'app:on-modal-open';
+  private modalCloseEvent = 'app:on-modal-close';
+  private modalId = 'lihkg-helper-modal';
 
-  public static init() {
+  constructor() {
     window.addEventListener(this.modalOpenEvent, (e: CustomEvent<ModalOptions>) => this.openModal(e.detail));
     window.addEventListener(this.modalCloseEvent, () => this.closeModal());
   };
 
-  public static show(options: ModalOptions) {
+  public show(options: ModalOptions) {
     window.dispatchEvent(new CustomEvent(this.modalOpenEvent, { detail: options }));
   };
 
-  public static close() {
+  public close() {
     window.dispatchEvent(new CustomEvent(this.modalCloseEvent));
   };
 
-  private static openModal(options: ModalOptions) {
+  private openModal(options: ModalOptions) {
     const { title, message, action } = options;
     const modal = html<HTMLDialogElement>`
       <dialog id=${this.modalId}>
@@ -51,10 +52,12 @@ export class Modal {
     modal.showModal();
   };
 
-  private static closeModal() {
+  private closeModal() {
     const modal = document.querySelector<HTMLDialogElement>(`#${this.modalId}`);
     if (!modal) return;
     modal.close();
     modal.remove();
   };
 }
+
+export default new Modal();
