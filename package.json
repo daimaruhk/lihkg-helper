@@ -1,13 +1,13 @@
 {
   "name": "lihkg-helper",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "A chrome extension that makes LIHKG.com better.",
   "scripts": {
     "build": "rm -rf dist && webpack && cp README.md dist",
     "dev": "webpack --watch"
   },
   "keywords": [],
-  "author": "hkbocchi",
+  "author": "daimaruhk",
   "license": "ISC",
   "devDependencies": {
     "@types/chrome": "^0.0.237",

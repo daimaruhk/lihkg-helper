@@ -23,3 +23,7 @@ A chrome extension that enables user back up LIHKG post in one click.
 ### v1.1.0 (Jun 3, 2023)
 Features:
 - [f37442e](https://github.com/daimaruhk/lihkg-helper/commit/f37442eb25a3821afbf4a5a9fcbd5b9638cb5316): Display confirmation dialog when user attempts to delete a backup post.
+
+### v1.2.0 (Jun 8, 2023)
+Features:
+- [42be9f2][https://github.com/daimaruhk/lihkg-helper/commit/42be9f2b3336bec3a02faa129f08250dcb46a036]: Add auto scroll button.
