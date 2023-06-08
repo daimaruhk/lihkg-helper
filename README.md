@@ -1,5 +1,5 @@
 # LIHKG Helper
-A chrome extension that enables user back up LIHKG post in one click.
+A chrome extension that makes LIHKG.com better.
 
 ![Step 1](https://i.imgur.com/wy1v4zL.png)
 
@@ -8,6 +8,11 @@ A chrome extension that enables user back up LIHKG post in one click.
 ![Step 3](https://i.imgur.com/hjYEojR.png)
 
 ![Step 4](https://i.imgur.com/b7Oeplb.png)
+
+## Features
+This extension allows user to:
+1. back up posts in one click.
+2. scroll automatically inside a post.
 
 ## Installation
 1. Download the extension:
@@ -26,4 +31,4 @@ Features:
 
 ### v1.2.0 (Jun 8, 2023)
 Features:
-- [42be9f2][https://github.com/daimaruhk/lihkg-helper/commit/42be9f2b3336bec3a02faa129f08250dcb46a036]: Add auto scroll button.
+- [42be9f2](https://github.com/daimaruhk/lihkg-helper/commit/42be9f2b3336bec3a02faa129f08250dcb46a036): Add auto scroll button.
