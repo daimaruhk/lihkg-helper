@@ -8,24 +8,9 @@ type ModalOptions = {
 }
 
 class Modal {
-  private modalOpenEvent = 'app:on-modal-open';
-  private modalCloseEvent = 'app:on-modal-close';
   private modalId = 'lihkg-helper-modal';
 
-  constructor() {
-    window.addEventListener(this.modalOpenEvent, (e: CustomEvent<ModalOptions>) => this.openModal(e.detail));
-    window.addEventListener(this.modalCloseEvent, () => this.closeModal());
-  };
-
   public show(options: ModalOptions) {
-    window.dispatchEvent(new CustomEvent(this.modalOpenEvent, { detail: options }));
-  };
-
-  public close() {
-    window.dispatchEvent(new CustomEvent(this.modalCloseEvent));
-  };
-
-  private openModal(options: ModalOptions) {
     const { title, message, action } = options;
     const modal = html<HTMLDialogElement>`
       <dialog id=${this.modalId}>
@@ -52,7 +37,7 @@ class Modal {
     modal.showModal();
   };
 
-  private closeModal() {
+  public close() {
     const modal = document.querySelector<HTMLDialogElement>(`#${this.modalId}`);
     if (!modal) return;
     modal.close();

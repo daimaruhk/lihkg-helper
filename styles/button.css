@@ -1,3 +1,7 @@
+.btn-container {
+  width: 42px;
+}
+
 .btn-wrapper {
   display: grid;
   place-items: center;

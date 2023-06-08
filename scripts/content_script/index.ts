@@ -1,12 +1,24 @@
+import { getThreadId } from '../utils';
 import BackupButton from './BackupButton';
 import DeleteButton from './DeleteButton';
 import NavLink from './NavLink';
+import PlayButton from './PlayButton';
 
 // since LIHKG.com is client-side rendering,
 // use MutationObserver to observe the DOM rendering,
 // append the extension DOM whenever the rendering is done.
+let prevThreadId: string;
 const observer = new MutationObserver((mutations) => {
   const isBackupPost = window.location.pathname.startsWith('/thread/backup:');
+  const currentThreadId = getThreadId();
+  if (currentThreadId !== prevThreadId) {
+    prevThreadId = currentThreadId;
+
+    if (PlayButton.isPlaying) {
+      PlayButton.pause();
+    }
+  }
+  
   mutations.forEach((mutation) => {
     mutation.addedNodes.forEach((node) => {
       const isElementNode = node.nodeType === 1;
@@ -19,12 +31,14 @@ const observer = new MutationObserver((mutations) => {
 
       if (!isBackupPost && !!element.querySelector('[data-tip="熱門回覆"]')) {
         BackupButton.create();
+        PlayButton.create();
       }
 
       if (isBackupPost && !!element.querySelector('[data-tip="熱門回覆"]')) {
         DeleteButton.create();
+        PlayButton.create();
       }
-    })
+    });
   })
 });
 
