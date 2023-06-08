@@ -1,0 +1,16 @@
+.play-btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+}
+
+.speed-label {
+  line-height: initial;
+  font-size: .6rem;
+  margin-top: .3rem;
+  user-select: none;
+  width: 100%;
+  text-align: center;
+}

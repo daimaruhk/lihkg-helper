@@ -3,24 +3,15 @@ import Modal from './Modal';
 import '../../styles/button.css';
 
 class DeleteButton {
-  private createButtonEvent = 'app:create-delete-btn';
   private targetQuery = '[data-tip="熱門回覆"]';
 
-  constructor() {
-    window.addEventListener(this.createButtonEvent, () => this.createButton())
-  };
-
   public create() {
-    window.dispatchEvent(new CustomEvent(this.createButtonEvent));
-  };
-
-  private createButton() {
     const target = document.querySelector(this.targetQuery);
     if (!target) return;
 
     const deleteImagePath = `images/delete-${isDarkMode() ? 'light' : 'dark'}.png`;
     const deleteBtn = html`
-      <span data-tip="刪除備份" title="刪除備份" style="width:42px;">
+      <span data-tip="刪除備份" title="刪除備份" class="btn-container">
         <span class="btn-wrapper">
           <image src=${chrome.runtime.getURL(deleteImagePath)} class="btn-icon"></image>
         </span>

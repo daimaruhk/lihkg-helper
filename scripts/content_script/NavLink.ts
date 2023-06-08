@@ -1,16 +1,11 @@
 class NavLink {
-  private createLinkEvent = 'app:create-nav-link';
   private targetQuery = 'a[href="/category/32"]'; // "黑洞台" button
-
-  constructor() {
-    window.addEventListener(this.createLinkEvent, () => this.createLink(), { once: true });
-  };
+  private created = false;
 
   public create() {
-    window.dispatchEvent(new CustomEvent(this.createLinkEvent));
-  };
-
-  private createLink() {
+    // only need to create once
+    if (this.created) return;
+    this.created = true;
     const target = document.querySelector(this.targetQuery);
     if (!target) return;
     const nav = target.cloneNode() as HTMLAnchorElement;
