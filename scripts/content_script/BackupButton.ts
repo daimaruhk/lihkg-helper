@@ -3,29 +3,16 @@ import { getThreadId, html, isDarkMode, Logger, Storage } from '../utils';
 import '../../styles/button.css';
 
 class BackupButton {
-  private createButtonEvent = 'app:create-backup-btn';
-  private backupStartEvent = 'app:backup-start';
-  private backupCompleteEvent = 'app:backup-complete';
   private targetQuery = '[data-tip="熱門回覆"]';
   private isLoading = false;
 
-  constructor() {
-    window.addEventListener(this.createButtonEvent, () => this.createButton());
-    window.addEventListener(this.backupStartEvent, () => this.backupStart());
-    window.addEventListener(this.backupCompleteEvent, () => this.backupComplete());
-  };
-
   public create() {
-    window.dispatchEvent(new CustomEvent(this.createButtonEvent));
-  };
-
-  private createButton() {
     const target = document.querySelector(this.targetQuery);
     if (!target) return;
 
     const backupImagePath = `images/backup-${isDarkMode() ? 'light' : 'dark'}.png`;
     const backupBtn = html`
-      <span data-tip="備份" title="備份" style="width:42px;">
+      <span data-tip="備份" title="備份" class="btn-container">
         <span class="btn-wrapper">
           <image src=${chrome.runtime.getURL(backupImagePath)} class="btn-icon"></image>
           <span class="hidden backup-spinner backup-spinner-${isDarkMode() ? 'light' : 'dark'}"></span>
@@ -33,7 +20,7 @@ class BackupButton {
       </span>
     `;
     backupBtn.addEventListener('click', () => {
-      window.dispatchEvent(new CustomEvent(this.backupStartEvent));
+      this.backupStart();
     });
     target.parentElement!.insertBefore(backupBtn, target);
   };
@@ -78,7 +65,7 @@ class BackupButton {
     } catch (err) {
       Logger.error(err.message);
     } finally {
-      window.dispatchEvent(new CustomEvent(this.backupCompleteEvent));
+      this.backupComplete();
     }
   };
 
